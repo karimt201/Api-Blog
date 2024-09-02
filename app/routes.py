@@ -52,7 +52,7 @@ def add_get_blogs():
 
     return jsonify({'blogs': blogs})
 
-@app.route('/blogs/<int:blog_id>', methods=['GET'])
+@app.route('/<int:blog_id>', methods=['GET'])
 def get_blog(blog_id):
     blog_obj = Blog.query.filter_by(id=blog_id).first()
 
