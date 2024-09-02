@@ -2,7 +2,7 @@ from flask import jsonify, request
 from app import app, db
 from app.models import Blog, Header, Meta
 
-@app.route('/blogs', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def add_get_blogs():
     if request.method == 'POST':
 
