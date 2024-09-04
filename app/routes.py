@@ -1,11 +1,15 @@
 from flask import jsonify, request
-from app import app, db
+from app import app
 from app.models import Blog , Content , Category
 
 @app.route('/home', methods=['GET'])
 def Homepage():
+
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per-page", 2, type=int)
     
     blog_list = Blog.query.all()
+    blog_paginate = Blog.query.paginate(page=page, per_page=per_page, error_out=False)
     blogs = []
 
     for blog in blog_list:
@@ -15,10 +19,17 @@ def Homepage():
             'title': blog.title,
             'description': blog.description,
             'keywords': blog.keywords,
-            'user_id': blog.user_id
+            'user_id': blog.user_id,
         })
+    pagination = {
+        "count": blog_paginate.total,
+        "page": page,
+        "per_page": per_page,
+        "pages": blog_paginate.pages,
+    }
+    
 
-    return jsonify({'blogs': blogs})
+    return jsonify({'blogs': blogs , 'pagination': pagination})
 
 @app.route('/blogs', methods=['GET'])
 def get_blogs():

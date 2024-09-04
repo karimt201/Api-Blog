@@ -10,21 +10,6 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     blogs = db.relationship('Blog', backref='author', lazy=True)
 
-# class Meta(db.Model):
-#     __tablename__ = 'metas'
-#     id = db.Column(db.Integer, primary_key=True)
-#     category = db.Column(db.String(255), nullable=False)
-#     header_id = db.Column(db.Integer, db.ForeignKey('headers.id'), nullable=False)
-
-# class Header(db.Model):
-#     __tablename__ = 'headers'
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(255), nullable=False)
-#     description = db.Column(db.Text, nullable=False)
-#     image = db.Column(db.String(255), nullable=False)
-#     meta = db.relationship('Meta', backref='header', lazy=True)
-#     blog_id = db.Column(db.Integer, db.ForeignKey('blogs.id'), nullable=False)
-
 class Blog(db.Model):
     __tablename__ = 'blogs'
     id = db.Column(db.Integer, primary_key=True)
@@ -34,12 +19,9 @@ class Blog(db.Model):
     read_time = db.Column(db.String(50), nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     keywords = db.Column(ARRAY(db.String(50)),default=[])
-    # header = db.relationship('Header', backref='blog', lazy=True)
     contents = db.relationship('Content', backref='blog', lazy=True)
     Categorys = db.relationship('Category', backref='blog', lazy=True)
     faqs = db.relationship('Faq', backref='blog', lazy=True)
-    # popular_topics = db.relationship('PopularTopic', backref='blog', lazy=True)
-    # topics = db.relationship('Topic', backref='blog', lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __init__(self,id, img, title, description,read_time,date, user_id,keywords):
