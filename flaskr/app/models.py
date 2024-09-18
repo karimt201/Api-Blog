@@ -2,6 +2,11 @@ from app import db
 from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime
 
+blog_category_association = db.Table('blog_category',
+    db.Column('blog_id', db.Integer, db.ForeignKey('blogs.id'), primary_key=True),
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -15,7 +20,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    blogs = db.relationship('Blog', backref='category', lazy=True)  
+    blogs = db.relationship('Blog', secondary=blog_category_association, back_populates='categories')
 
     def __init__(self, title, description):
         self.title = title
@@ -31,18 +36,17 @@ class Blog(db.Model):
     date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     keywords = db.Column(ARRAY(db.String(50)), default=[])
     contents = db.relationship('Content', backref='blog', lazy=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)  
     faqs = db.relationship('Faq', backref='blog', lazy=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    categories = db.relationship('Category', secondary=blog_category_association, back_populates='blogs')
 
-    def __init__(self, img, title, description, read_time, user_id, category_id, keywords=None):
+    def __init__(self, img, title, description, read_time, user_id, keywords=None):
         self.img = img
         self.title = title
         self.description = description
         self.read_time = read_time
         self.keywords = keywords if keywords is not None else []
         self.user_id = user_id
-        self.category_id = category_id  
 
 class Content(db.Model):
     __tablename__ = 'contents'

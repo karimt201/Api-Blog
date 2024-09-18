@@ -1,0 +1,28 @@
+.blog-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: transform 0.2s;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+}
+
+.blog-card img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.blog-card h2 {
+    margin-top: 12px;
+    font-size: 1.5rem;
+}
+
+.blog-card p {
+    margin-top: 8px;
+    font-size: 1rem;
+    color: #555;
+}

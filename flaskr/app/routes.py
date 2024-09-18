@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from app import app , db
-from app.models import Blog , Content , Category
+from app.models import Blog , Content , Category , Faq
+
 
 @app.route('/home', methods=['GET'])
 def Homepage():
@@ -46,15 +47,14 @@ def get_blogs():
                 'date': blog.date,
                 'read_time': blog.read_time,
                 'keywords': blog.keywords,
-                'category_id': blog.category_id,
-                'contents': [{'id': content.id, 'title': content.title, 'description': content.description} for content in blog.contents],
+                'categories': [{'id': category.id, 'title': category.title} for category in blog.categories],                'contents': [{'id': content.id, 'title': content.title, 'description': content.description} for content in blog.contents],
                 'faqs': [{'id': faq.id, 'question': faq.question, 'answer': faq.answer} for faq in blog.faqs],
                 'user_id': blog.user_id
             })
 
         return jsonify({'blogs': blogs})
-
-    elif request.method == 'POST':
+    
+    if request.method == 'POST':
         data = request.get_json()
 
         try:
@@ -63,18 +63,44 @@ def get_blogs():
                 title=data.get('title'),
                 description=data.get('description'),
                 read_time=data.get('read_time'),
-                keywords=data.get('keywords', []),  
-                user_id=data.get('user_id'),
-                category_id=data.get('category_id')
-
+                keywords=data.get('keywords', []),
+                user_id=data.get('user_id')
             )
+            
+            if 'category_ids' in data:
+                categories = Category.query.filter(Category.id.in_(data['category_ids'])).all()
+                new_blog.categories = categories
+
             db.session.add(new_blog)
+            db.session.flush()
+
+            if 'contents' in data:
+                for content_data in data['contents']:
+                    new_content = Content(
+                        title=content_data['title'],
+                        description=content_data['description'],
+                        blog_id=new_blog.id
+                    )
+                    db.session.add(new_content)
+
+            if 'faqs' in data:
+                for faq_data in data['faqs']:
+                    new_faq = Faq(
+                        question=faq_data['question'],
+                        answer=faq_data['answer'],
+                        blog_id=new_blog.id
+                    )
+                    db.session.add(new_faq)
+
             db.session.commit()
+
             return jsonify({'message': 'Blog created successfully', 'blog_id': new_blog.id}), 201
+
         except Exception as e:
-            db.session.rollback()
+            db.session.rollback()  
             return jsonify({'error': str(e)}), 500
-        
+
+
 
 @app.route('/blogs/<int:blog_id>', methods=['GET', 'PUT', 'DELETE'])
 def handle_blog(blog_id):
@@ -89,8 +115,7 @@ def handle_blog(blog_id):
             'read_time': blog.read_time,
             'description': blog.description,
             'keywords': blog.keywords,
-            'category_id': blog.category_id,
-            'contents': [{'id': content.id, 'title': content.title, 'description': content.description} for content in blog.contents],
+            'categories': [{'id': category.id, 'title': category.title , 'description': category.description} for category in blog.categories],            'contents': [{'id': content.id, 'title': content.title, 'description': content.description} for content in blog.contents],
             'faqs': [{'id': faq.id, 'question': faq.question, 'answer': faq.answer} for faq in blog.faqs],
             'user_id': blog.user_id
         }
@@ -103,6 +128,11 @@ def handle_blog(blog_id):
         blog.description = data.get('description', blog.description)
         blog.read_time = data.get('read_time', blog.read_time)
         blog.keywords = data.get('keywords', blog.keywords)
+        
+        if 'category_ids' in data:
+            categories = Category.query.filter(Category.id.in_(data['category_ids'])).all()
+            blog.categories = categories
+        
 
         db.session.commit()
 
@@ -112,6 +142,7 @@ def handle_blog(blog_id):
         db.session.delete(blog)
         db.session.commit()
         return jsonify({'message': 'Blog deleted successfully'}), 200
+
 
 @app.route('/contents', methods=['GET'])
 def get_blogs_contents():
