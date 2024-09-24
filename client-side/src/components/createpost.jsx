@@ -6,21 +6,22 @@ export const CreatePost = () => {
     const [description, setDescription] = useState("");
     const [readTime, setReadTime] = useState("");
     const [keywords, setKeywords] = useState("");
-    const [categoryIds, setCategoryIds] = useState([]); // Holds selected category ids
-    const [availableCategories, setAvailableCategories] = useState([]); // Holds fetched categories
+    const [categoryIds, setCategoryIds] = useState([]); 
+    const [availableCategories, setAvailableCategories] = useState([]); 
     const [contents, setContents] = useState([{ title: "", description: "" }]);
     const [faqs, setFaqs] = useState([{ question: "", answer: "" }]);
     const [file, setFile] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // Fetch categories from the backend when the component mounts
     useEffect(() => {
         fetch("http://localhost:5000//categorys")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to fetch categories");
                 }
+                console.log(response.data);
+                
                 return response.json();
             })
             .then((data) => {
@@ -129,7 +130,7 @@ export const CreatePost = () => {
                     onChange={(e) => setKeywords(e.target.value)}
                 />
 
-                {/* Category Selection */}
+                {/* Category Selection
                 <div>
                     <h3>Select Categories:</h3>
                     <select
@@ -144,7 +145,7 @@ export const CreatePost = () => {
                             </option>
                         ))}
                     </select>
-                </div>
+                </div> */}
 
                 <div>
                     <h3>Contents:</h3>
@@ -152,18 +153,20 @@ export const CreatePost = () => {
                         <div key={index}>
                             <input
                                 type="text"
-                                placeholder={`Content Title ${index + 1}`}
-                                className="create-post-input"
+                                placeholder={'Content Title'}
+                                className="content-post-input"
                                 value={content.title}
-                                onChange={(e) => handleContentChange(index, "title", e.target.value)}
+                                onChange={(e) => handleContentChange( "title", e.target.value)}
                             />
+                            <br/>
                             <textarea
                                 className="create-post-textarea"
                                 rows="3"
-                                placeholder={`Content Description ${index + 1}`}
+                                placeholder={'Content Description '}
                                 value={content.description}
-                                onChange={(e) => handleContentChange(index, "description", e.target.value)}
+                                onChange={(e) => handleContentChange( "description", e.target.value)}
                             ></textarea>
+                            
                         </div>
                     ))}
                 </div>

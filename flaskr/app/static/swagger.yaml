@@ -1,0 +1,739 @@
+swagger: "2.0"
+info:
+  description: "API documentation for the Homepage and Blogs routes."
+  version: "1.0.0"
+  title: "Blog API"
+paths:
+  /home:
+    get:
+      tags:
+        - "Home"
+      summary: "Get a paginated list of blogs"
+      parameters:
+        - name: "page"
+          in: "query"
+          description: "Page number"
+          required: false
+          type: "integer"
+          default: 1
+        - name: "per-page"
+          in: "query"
+          description: "Number of items per page"
+          required: false
+          type: "integer"
+          default: 2
+      responses:
+        200:
+          description: "A list of blogs and pagination info"
+          schema:
+            type: "object"
+            properties:
+              blogs:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                    img:
+                      type: "string"
+                    title:
+                      type: "string"
+                    description:
+                      type: "string"
+                    keywords:
+                      type: "array"
+                      items:
+                        type: "string"
+                    user_id:
+                      type: "integer"
+              pagination:
+                type: "object"
+                properties:
+                  count:
+                    type: "integer"
+                  page:
+                    type: "integer"
+                  per_page:
+                    type: "integer"
+                  pages:
+                    type: "integer"
+
+  /blogs:
+    get:
+      tags:
+        - "Blogs"
+      summary: "Get all blogs"
+      description: "Retrieve a list of all blogs along with their categories, contents, and FAQs."
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "A list of blogs"
+          schema:
+            type: "object"
+            properties:
+              blogs:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                    img:
+                      type: "string"
+                    title:
+                      type: "string"
+                    description:
+                      type: "string"
+                    date:
+                      type: "string"
+                    read_time:
+                      type: "integer"
+                    keywords:
+                      type: "array"
+                      items:
+                        type: "string"
+                    categories:
+                      type: "array"
+                      items:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "integer"
+                          title:
+                            type: "string"
+                    contents:
+                      type: "array"
+                      items:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "integer"
+                          title:
+                            type: "string"
+                          description:
+                            type: "string"
+                    faqs:
+                      type: "array"
+                      items:
+                        type: "object"
+                        properties:
+                          id:
+                            type: "integer"
+                          question:
+                            type: "string"
+                          answer:
+                            type: "string"
+                    user_id:
+                      type: "integer"
+    post:
+      tags:
+        - "Blogs"
+      summary: "Create a new blog"
+      description: "Create a new blog with categories, contents, and FAQs."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Blog object that needs to be added"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              img:
+                type: "string"
+              title:
+                type: "string"
+              description:
+                type: "string"
+              read_time:
+                type: "integer"
+              keywords:
+                type: "array"
+                items:
+                  type: "string"
+              user_id:
+                type: "integer"
+              category_ids:
+                type: "array"
+                items:
+                  type: "integer"
+              contents:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    title:
+                      type: "string"
+                    description:
+                      type: "string"
+              faqs:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    question:
+                      type: "string"
+                    answer:
+                      type: "string"
+      responses:
+        201:
+          description: "Blog created successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+              blog_id:
+                type: "integer"
+        500:
+          description: "Internal server error"
+          schema:
+            type: "object"
+            properties:
+              error:
+                type: "string"
+
+  /blogs/{blog_id}:
+    get:
+      tags:
+        - "Blogs"
+      summary: "Get a specific blog by ID"
+      description: "Retrieve detailed information about a specific blog entry."
+      produces:
+        - "application/json"
+      parameters:
+        - name: "blog_id"
+          in: "path"
+          description: "ID of the blog to retrieve"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "A blog entry"
+          schema:
+            type: "object"
+            properties:
+              blog:
+                type: "object"
+                properties:
+                  id:
+                    type: "integer"
+                  img:
+                    type: "string"
+                  title:
+                    type: "string"
+                  date:
+                    type: "string"
+                    format: "date"
+                  read_time:
+                    type: "integer"
+                  description:
+                    type: "string"
+                  keywords:
+                    type: "array"
+                    items:
+                      type: "string"
+                  categories:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "integer"
+                        title:
+                          type: "string"
+                        description:
+                          type: "string"
+                  contents:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "integer"
+                        title:
+                          type: "string"
+                        description:
+                          type: "string"
+                  faqs:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "integer"
+                        question:
+                          type: "string"
+                        answer:
+                          type: "string"
+                  user_id:
+                    type: "integer"
+
+    put:
+      tags:
+        - "Blogs"
+      summary: "Update a specific blog by ID"
+      description: "Update an existing blog entry."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "blog_id"
+          in: "path"
+          description: "ID of the blog to update"
+          required: true
+          type: "integer"
+        - in: "body"
+          name: "body"
+          description: "Blog object that needs to be updated"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              img:
+                type: "string"
+              title:
+                type: "string"
+              description:
+                type: "string"
+              read_time:
+                type: "integer"
+              keywords:
+                type: "array"
+                items:
+                  type: "string"
+              category_ids:
+                type: "array"
+                items:
+                  type: "integer"
+      responses:
+        200:
+          description: "Blog updated successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+
+    delete:
+      tags:
+        - "Blogs"
+      summary: "Delete a specific blog by ID"
+      description: "Remove a blog entry from the system."
+      parameters:
+        - name: "blog_id"
+          in: "path"
+          description: "ID of the blog to delete"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Blog deleted successfully"
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: "Get a paginated list of courses"
+      description: "Retrieve a paginated list of courses along with basic information for each course, including nested lesson summaries."
+      parameters:
+        - name: page
+          in: "query"
+          description: "Page number (default: 1)"
+          required: false
+          type: "integer"
+        - name: per-page
+          in: "query"
+          description: "Number of courses per page (default: 2)"
+          required: false
+          type: "integer"
+      responses:
+        200:
+          description: "A list of courses with pagination information"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  courses:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "integer"
+                        title:
+                          type: "string"
+                        description:
+                          type: "string"
+                        icon:
+                          type: "string"  # Assuming icon URL or path
+                        user_id:
+                          type: "integer"
+                        lessons:
+                          type: "array"
+                          items:
+                            type: "object"
+                            properties:
+                              id:
+                                type: "integer"
+                              title:
+                                type: "string"
+                              slug:
+                                type: "string"
+                  pagination:
+                    type: "object"
+                    properties:
+                      count:
+                        type: "integer"
+                      page:
+                        type: "integer"
+                      per_page:
+                        type: "integer"
+                      pages:
+                        type: "integer"
+    post:
+      tags:
+        - Courses
+      summary: "Create a new course"
+      description: "Create a new course with the provided title, description, icon URL (optional), and user ID."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                title:
+                  type: "string"
+                  required: true
+                description:
+                  type: "string"
+                  required: true
+                icon:
+                  type: "string"
+                user_id:
+                  type: "integer"
+                  required: true
+      responses:
+        201:
+          description: "Course created successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                  course_id:
+                    type: "integer"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+/courses/{course_id}:
+    put:
+      tags:
+        - Courses
+      summary: "Update a course"
+      description: "Update the details of an existing course."
+      parameters:
+        - name: course_id
+          in: "path"
+          required: true
+          type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                title:
+                  type: "string"
+                description:
+                  type: "string"
+                icon:
+                  type: "string"
+      responses:
+        200:
+          description: "Course updated successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        400:
+          description: "Invalid request data"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+    delete:
+      tags:
+        - Courses
+      summary: "Delete a course"
+      description: "Delete an existing course and its associated lessons."
+      parameters:
+        - name: course_id
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Course deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+
+/courses/{course_id}/lessons:
+    get:
+      tags:
+        - Lessons
+      summary: "Get lessons for a specific course"
+      description: "Retrieve a list of lessons associated with a particular course."
+      parameters:
+        - name: course_id
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "A list of lessons"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  lessons:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "integer"
+                        title:
+                          type: "string"
+                        slug:
+                          type: "string"
+                        content:
+                          type: "string"
+                        thumbnail:
+                          type: "string"
+    post:
+      tags:
+        - Lessons
+      summary: "Create a new lesson for a course"
+      description: "Add a new lesson to an existing course."
+      parameters:
+        - name: course_id
+          in: "path"
+          required: true
+          type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                title:
+                  type: "string"
+                  required: true
+                slug:
+                  type: "string"
+                  required: true
+                content:
+                  type: "string"
+                  required: true
+                thumbnail:
+                  type: "string"
+      responses:
+        201:
+          description: "Lesson created successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                  lesson_id:
+                    type: "integer"
+        400:
+          description: "Invalid request data"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+
+/lessons/{lesson_id}:
+    get:
+      tags:
+        - Lessons
+      summary: "Get a specific lesson by ID"
+      description: "Retrieve details for a single lesson by its unique ID."
+      parameters:
+        - name: lesson_id
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Lesson details"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  lesson:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "integer"
+                      title:
+                        type: "string"
+                      slug:
+                        type: "string"
+                      content:
+                        type: "string"
+                      thumbnail:
+                        type: "string"
+                      course_id:
+                        type: "integer"
+    put:
+      tags:
+        - Lessons
+      summary: "Update a lesson"
+      description: "Update the details of an existing lesson."
+      parameters:
+        - name: lesson_id
+          in: "path"
+          required: true
+          type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                title:
+                  type: "string"
+                slug:
+                  type: "string"
+                content:
+                  type: "string"
+                thumbnail:
+                  type: "string"
+      responses:
+        200:
+          description: "Lesson updated successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        400:
+          description: "Invalid request data"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+    delete:
+      tags:
+        - Lessons
+      summary: "Delete a lesson"
+      description: "Delete an existing lesson."
+      parameters:
+        - name: lesson_id
+          in: "path"
+          required: true
+          type: "integer"
+      responses:
+        200:
+          description: "Lesson deleted successfully"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        500:
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"

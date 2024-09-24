@@ -1,6 +1,5 @@
 from app import db
 from sqlalchemy.dialects.postgresql import ARRAY
-from datetime import datetime
 
 blog_category_association = db.Table('blog_category',
     db.Column('blog_id', db.Integer, db.ForeignKey('blogs.id'), primary_key=True),
@@ -14,6 +13,12 @@ class User(db.Model):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     blogs = db.relationship('Blog', backref='author', lazy=True)
+    courses = db.relationship('Course', backref='author', lazy=True)
+    
+    def __init__(self, username, email,password):
+        self.username = username
+        self.email = email
+        self.password = password
 
 class Category(db.Model):
     __tablename__ = 'categories'  
@@ -33,17 +38,18 @@ class Blog(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=False)
     read_time = db.Column(db.String(50), nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    date = db.Column(db.String(50), nullable=False)
     keywords = db.Column(ARRAY(db.String(50)), default=[])
-    contents = db.relationship('Content', backref='blog', lazy=True)
-    faqs = db.relationship('Faq', backref='blog', lazy=True)
+    contents = db.relationship('Content', backref='blog', lazy=True , cascade='delete')
+    faqs = db.relationship('Faq', backref='blog', lazy=True , cascade='delete')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     categories = db.relationship('Category', secondary=blog_category_association, back_populates='blogs')
 
-    def __init__(self, img, title, description, read_time, user_id, keywords=None):
+    def __init__(self, img, title, description, read_time,date, user_id, keywords=None):
         self.img = img
         self.title = title
         self.description = description
+        self.date = date
         self.read_time = read_time
         self.keywords = keywords if keywords is not None else []
         self.user_id = user_id
@@ -66,3 +72,35 @@ class Faq(db.Model):
     question = db.Column(db.String(255), nullable=False)
     answer = db.Column(db.Text, nullable=False)
     blog_id = db.Column(db.Integer, db.ForeignKey('blogs.id'), nullable=False)
+
+
+class Course(db.Model):
+    __tablename__ = 'courses'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    icon = db.Column(db.String(255))  
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  
+    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade="all, delete-orphan")
+
+    def __init__(self, title, description, icon, user_id):
+        self.title = title
+        self.description = description
+        self.icon = icon
+        self.user_id = user_id
+
+class Lesson(db.Model):
+    __tablename__ = 'lessons'
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id', ondelete='CASCADE'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    slug = db.Column(db.String(32), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    thumbnail = db.Column(db.String(255)) 
+
+    def __init__(self, course_id, title, slug, content, thumbnail=None):
+        self.course_id = course_id
+        self.title = title
+        self.slug = slug
+        self.content = content
+        self.thumbnail = thumbnail
