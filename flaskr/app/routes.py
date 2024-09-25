@@ -195,7 +195,7 @@ def get_blogs_users():
         }), 201
 
 
-@app.route('/category', methods=['GET', 'POST'])
+@app.route('/categories', methods=['GET', 'POST'])
 def handle_categories():
     if request.method == 'GET':
         category_lst = Category.query.all()
@@ -229,6 +229,44 @@ def handle_categories():
                 'description': new_category.description,
             }
         }), 201
+
+@app.route('/category/<int:category_id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_category(category_id):
+    category = Category.query.get_or_404(category_id)
+
+    if request.method == 'GET':
+        category_data = {
+            'id': category.id,
+            'title': category.title,
+            'description': category.description,
+        }
+        return jsonify({'category': category_data})
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        
+        category.title = data.get('title', category.title)
+        category.description = data.get('description', category.description)
+
+        try:
+            db.session.commit()
+            return jsonify({'message': 'Blog updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+    elif request.method == 'DELETE':
+        try:
+            db.session.delete(category)
+            db.session.commit()
+            return jsonify({'message': 'Blog deleted successfully'}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
 
 
 @app.route('/blogs/<int:blog_id>/related-topics', methods=['GET'])
