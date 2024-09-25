@@ -283,6 +283,7 @@ def related_topics(blog_id):
         related_blogs_data = [{
             'id': related_blog.id,
             'title': related_blog.title,
+            'img': related_blog.img,
             'description': related_blog.description,  
             'keywords': related_blog.keywords,
             'user_id': related_blog.user_id
