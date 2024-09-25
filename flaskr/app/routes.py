@@ -395,38 +395,39 @@ def handle_lessons(course_id):
     course = Course.query.get_or_404(course_id)
 
     if request.method == 'GET':
-        
-        user_lst = User.query.all()
-        courses = Course.query.all()
-        lessons = Lesson.query.filter_by(course_id=course_id).all()
-        users = []
-        course_data = []
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per-page", 4, type=int)
+        lessons_paginate = Lesson.query.paginate(page=page, per_page=per_page, error_out=False)\
+            .filter_by(course_id=course_id).all()
+    
         lessons_data = []
 
-        for course in courses:
-            course_data.append({
-                'title': course.title
-            })
+        for lesson in lessons_paginate:
+            courses = Course.query.filter_by(id=lesson.course_id).all()
+            for course in courses:
+                users = User.query.filter_by(id=course.user_id).all()
+                for user in users:
+                    lessons_data.append({
+                        'id': lesson.id,
+                        'title': lesson.title,
+                        'slug': lesson.slug,
+                        'date': lesson.date,
+                        'content': lesson.content,
+                        'thumbnail': lesson.thumbnail,
+                        'course_title': course.title,
+                        'user_img': user.img,
+                        'username': user.username,
+                    })
+                    
+        pagination = {
+            "count": lessons_paginate.total,
+            "page": page,
+            "per_page": per_page,
+            "pages": lessons_paginate.pages,
+        }
             
-        for lesson in lessons:
-            lessons_data.append({
-                'id': lesson.id,
-                'title': lesson.title,
-                'slug': lesson.slug,
-                'date': lesson.date,
-                'content': lesson.content,
-                'thumbnail': lesson.thumbnail
-            })
             
-        for user in user_lst:
-            users.append({
-                'id' : user.id,
-                'username': user.username,
-                'email': user.email,
-                'img': user.img,
-            })
-            
-        return jsonify({'lessons': lessons_data , 'user': users ,'course': course_data })
+        return jsonify({'lessons': lessons_data ,  'pagination': pagination })
 
     elif request.method == 'POST':
         data = request.get_json()
@@ -446,6 +447,61 @@ def handle_lessons(course_id):
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
 
+
+@swag_from('./static/swagger.yaml')
+@app.route('/lessons', methods=['GET', 'POST'])
+def get_lessons():
+    if request.method == 'GET':
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per-page", 4, type=int)
+        lessons_paginate = Lesson.query.paginate(page=page, per_page=per_page, error_out=False)
+    
+        lessons_data = []
+
+        for lesson in lessons_paginate:
+            courses = Course.query.filter_by(id=lesson.course_id).all()
+            for course in courses:
+                users = User.query.filter_by(id=course.user_id).all()
+                for user in users:
+                    lessons_data.append({
+                        'id': lesson.id,
+                        'title': lesson.title,
+                        'slug': lesson.slug,
+                        'date': lesson.date,
+                        'content': lesson.content,
+                        'thumbnail': lesson.thumbnail,
+                        'course_title': course.title,
+                        'user_img': user.img,
+                        'username': user.username,
+                    })
+                    
+        pagination = {
+            "count": lessons_paginate.total,
+            "page": page,
+            "per_page": per_page,
+            "pages": lessons_paginate.pages,
+        }
+            
+            
+        return jsonify({'lessons': lessons_data ,  'pagination': pagination })
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        try:
+            new_lesson = Lesson(
+                course_id=course.id,
+                title=data.get('title'),
+                slug=data.get('slug'),
+                date=data.get('date'),
+                content=data.get('content'),
+                thumbnail=data.get('thumbnail')
+            )
+            db.session.add(new_lesson)
+            db.session.commit()
+            return jsonify({'message': 'Lesson created successfully'}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
 
 @swag_from('./static/swagger.yaml')
 @app.route('/lessons/<int:lesson_id>', methods=['GET', 'PUT', 'DELETE'])
