@@ -12,13 +12,15 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
+    img = db.Column(db.String(128), nullable=False)
     blogs = db.relationship('Blog', backref='author', lazy=True)
     courses = db.relationship('Course', backref='author', lazy=True)
     
-    def __init__(self, username, email,password):
+    def __init__(self, username, email,password,img):
         self.username = username
         self.email = email
         self.password = password
+        self.img = img
 
 class Category(db.Model):
     __tablename__ = 'categories'  
@@ -95,12 +97,14 @@ class Lesson(db.Model):
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id', ondelete='CASCADE'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(32), nullable=False)
+    date = db.Column(db.String(32), nullable=False)
     content = db.Column(db.Text, nullable=False)
     thumbnail = db.Column(db.String(255)) 
 
-    def __init__(self, course_id, title, slug, content, thumbnail=None):
+    def __init__(self, course_id, title, slug, date, content, thumbnail=None):
         self.course_id = course_id
         self.title = title
         self.slug = slug
+        self.date = date
         self.content = content
         self.thumbnail = thumbnail

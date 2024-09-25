@@ -158,7 +158,7 @@ def handle_blog(blog_id):
             return jsonify({'error': str(e)}), 500
 
 
-@app.route('/Users', methods=['GET', 'POST'])
+@app.route('/users', methods=['GET', 'POST'])
 def get_blogs_users():
     if request.method == 'GET':
         
@@ -171,6 +171,7 @@ def get_blogs_users():
                 'username': user.username,
                 'email': user.email,
                 'password': user.password,
+                'img': user.img,
             })
             
 
@@ -182,20 +183,15 @@ def get_blogs_users():
         new_user = User(
             username=data['username'],
             email=data['email'],
-            password=data['password']
+            password=data['password'],
+            img=data['img']
         )
 
         db.session.add(new_user)
         db.session.commit()
 
         return jsonify({
-            'message': 'User created successfully',
-            'category': {
-                'id': new_user.id,
-                'username': new_user.username,
-                'email': new_user.email,
-                'password': new_user.password,
-            }
+            'message': 'User created successfully'
         }), 201
 
 
@@ -360,17 +356,38 @@ def handle_lessons(course_id):
     course = Course.query.get_or_404(course_id)
 
     if request.method == 'GET':
+        
+        user_lst = User.query.all()
+        courses = Course.query.all()
         lessons = Lesson.query.filter_by(course_id=course_id).all()
+        users = []
+        course_data = []
         lessons_data = []
+
+        for course in courses:
+            course_data.append({
+                'title': course.title
+            })
+            
         for lesson in lessons:
             lessons_data.append({
                 'id': lesson.id,
                 'title': lesson.title,
                 'slug': lesson.slug,
+                'date': lesson.date,
                 'content': lesson.content,
                 'thumbnail': lesson.thumbnail
             })
-        return jsonify({'lessons': lessons_data})
+            
+        for user in user_lst:
+            users.append({
+                'id' : user.id,
+                'username': user.username,
+                'email': user.email,
+                'img': user.img,
+            })
+            
+        return jsonify({'lessons': lessons_data , 'user': users ,'course': course_data })
 
     elif request.method == 'POST':
         data = request.get_json()
@@ -379,6 +396,7 @@ def handle_lessons(course_id):
                 course_id=course.id,
                 title=data.get('title'),
                 slug=data.get('slug'),
+                date=data.get('date'),
                 content=data.get('content'),
                 thumbnail=data.get('thumbnail')
             )
@@ -400,6 +418,7 @@ def handle_lesson(lesson_id):
             'id': lesson.id,
             'title': lesson.title,
             'slug': lesson.slug,
+            'date': lesson.date,
             'content': lesson.content,
             'thumbnail': lesson.thumbnail,
             'course_id': lesson.course_id
@@ -411,6 +430,7 @@ def handle_lesson(lesson_id):
         try:
             lesson.title = data.get('title', lesson.title)
             lesson.slug = data.get('slug', lesson.slug)
+            lesson.slug = data.get('date', lesson.date)
             lesson.content = data.get('content', lesson.content)
             lesson.thumbnail = data.get('thumbnail', lesson.thumbnail)
             db.session.commit()
