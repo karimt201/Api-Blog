@@ -239,6 +239,14 @@ def handle_category(category_id):
             'id': category.id,
             'title': category.title,
             'description': category.description,
+            'Blogs': [{
+            'id' : blog.id,
+            'img': blog.img,
+            'title': blog.title,
+            'description': blog.description,
+            'keywords': blog.keywords,
+            'user_id': blog.user_id} for blog in category.blogs],
+
         }
         return jsonify({'category': category_data})
 
@@ -397,8 +405,7 @@ def handle_lessons(course_id):
     if request.method == 'GET':
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per-page", 4, type=int)
-        lessons_paginate = Lesson.query.paginate(page=page, per_page=per_page, error_out=False)\
-            .filter_by(course_id=course_id).all()
+        lessons_paginate = Lesson.query.paginate(page=page, per_page=per_page, error_out=False)
     
         lessons_data = []
 
