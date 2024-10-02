@@ -75,27 +75,41 @@ class Faq(db.Model):
     answer = db.Column(db.Text, nullable=False)
     blog_id = db.Column(db.Integer, db.ForeignKey('blogs.id'), nullable=False)
 
+training_centers_courses = db.Table('training_centers_courses',
+    db.Column('training_center_id', db.Integer, db.ForeignKey('training_centers.id'), primary_key=True),
+    db.Column('course_id', db.Integer, db.ForeignKey('courses.id'), primary_key=True)
+)
 
 class Course(db.Model):
     __tablename__ = 'courses'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     rating = db.Column(db.String(50))
-    princing = db.Column(db.String(50))
-    brief = db.Column(db.String(50))
-    img = db.Column(db.String(50))
-    Requirements = db.Column(db.String(50))
-    criteria = db.Column(db.String(50))
-    content = db.Column(db.String(50))
+    pricing = db.Column(db.String(50))
+    brief = db.Column(db.String(255))
+    img = db.Column(db.String(255))
+    requirements = db.Column(db.String(255))
+    criteria = db.Column(db.String(255))
+    content = db.Column(db.Text)
     startingdate = db.Column(db.String(50))
     enddate = db.Column(db.String(50))
-    description = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text)
     icon = db.Column(db.String(255))  
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  
     lessons = db.relationship('Lesson', backref='course', lazy=True, cascade="all, delete-orphan")
+    trainingcenters = db.relationship('TrainingCenters', secondary=training_centers_courses, backref=db.backref('courses_list', lazy=True))
 
-    def __init__(self, title, description, icon, user_id):
+    def __init__(self, title, rating, pricing, brief, img, requirements, criteria, content, startingdate, enddate, description, icon, user_id):
         self.title = title
+        self.rating = rating
+        self.pricing = pricing
+        self.brief = brief
+        self.img = img
+        self.requirements = requirements
+        self.criteria = criteria
+        self.content = content
+        self.startingdate = startingdate
+        self.enddate = enddate
         self.description = description
         self.icon = icon
         self.user_id = user_id
@@ -117,3 +131,12 @@ class Lesson(db.Model):
         self.date = date
         self.content = content
         self.thumbnail = thumbnail
+
+class TrainingCenters(db.Model):
+    __tablename__ = 'training_centers'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    location = db.Column(db.String(100))
+    img = db.Column(db.String(100))
+    address = db.Column(db.String(100))
+    courses = db.relationship('Course', secondary=training_centers_courses, backref=db.backref('training_centers_list', lazy=True))

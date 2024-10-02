@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from app import app , db 
-from app.models import Blog , Content , Category , Faq , User , Course, Lesson
+from app.models import Blog , Content , Category , Faq , User , Course, Lesson , TrainingCenters
 
 
 @app.route('/home', methods=['GET'])
@@ -408,6 +408,15 @@ def handle_course(course_id):
         course_data = {
             'id': course.id,
             'title': course.title,
+            'rating': course.rating,
+            'pricing': course.pricing,
+            'brief': course.brief,
+            'img': course.img,
+            'requirements': course.requirements,
+            'criteria': course.criteria,
+            'content': course.content,
+            'startingdate': course.startingdate,
+            'enddate': course.enddate,
             'description': course.description,
             'icon': course.icon,
             'user_id': course.user_id,
@@ -419,6 +428,15 @@ def handle_course(course_id):
         data = request.get_json()
         try:
             course.title = data.get('title', course.title)
+            course.rating = data.get('rating', course.rating)
+            course.pricing = data.get('pricing', course.pricing)
+            course.brief = data.get('brief', course.brief)
+            course.img = data.get('img', course.img)
+            course.requirements = data.get('requirements', course.requirements)
+            course.criteria = data.get('criteria', course.criteria)
+            course.content = data.get('content', course.content)
+            course.startingdate = data.get('startingdate', course.startingdate)
+            course.enddate = data.get('enddate', course.enddate)
             course.description = data.get('description', course.description)
             course.icon = data.get('icon', course.icon)
             db.session.commit()
@@ -630,6 +648,86 @@ def handle_lesson(lesson_id):
             db.session.delete(lesson)
             db.session.commit()
             return jsonify({'message': 'Lesson deleted successfully'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+        
+@app.route('/training-centers', methods=['GET', 'POST'])
+def handle_training_centers():
+    if request.method == 'GET':
+        centers = TrainingCenters.query.all()
+        centers_data = []
+        for center in centers:
+            centers_data.append({
+                'id': center.id,
+                'title': center.title,
+                'location': center.location,
+                'img': center.img,
+                'address': center.address,
+                'courses': [{'id': course.id, 'title': course.title} for course in center.courses]
+            })
+        return jsonify({'training_centers': centers_data})
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        try:
+            new_center = TrainingCenters(
+                title=data['title'],
+                location=data['location'],
+                img=data['img'],
+                address=data['address']
+            )
+            
+            if 'course_ids' in data:
+                courses = Course.query.filter(Course.id.in_(data['course_ids'])).all()
+                new_center.courses = courses
+
+            db.session.add(new_center)
+            db.session.commit()
+            return jsonify({'message': 'Training center created successfully', 'id': new_center.id}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+
+@app.route('/training-centers/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def handle_training_center(id):
+    center = TrainingCenters.query.get_or_404(id)
+
+    if request.method == 'GET':
+        center_data = {
+            'id': center.id,
+            'title': center.title,
+            'location': center.location,
+            'img': center.img,
+            'address': center.address,
+            'courses': [{'id': course.id, 'title': course.title} for course in center.courses]
+        }
+        return jsonify({'training_center': center_data})
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+        try:
+            center.title = data.get('title', center.title)
+            center.location = data.get('location', center.location)
+            center.img = data.get('img', center.img)
+            center.address = data.get('address', center.address)
+            
+            if 'course_ids' in data:
+                courses = Course.query.filter(Course.id.in_(data['course_ids'])).all()
+                center.courses = courses
+
+            db.session.commit()
+            return jsonify({'message': 'Training center updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500
+
+    elif request.method == 'DELETE':
+        try:
+            db.session.delete(center)
+            db.session.commit()
+            return jsonify({'message': 'Training center deleted successfully'})
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
