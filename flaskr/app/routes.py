@@ -1,6 +1,6 @@
 from flask import jsonify, request
 from app import app , db 
-from app.models import Blog , Content , Category , Faq , User , Course, Lesson , TrainingCenters
+from app.models import Blog , Content , Category , Faq , User , Course, Lesson , TrainingCenters , Cities , Applyform
 
 
 @app.route('/home', methods=['GET'])
@@ -731,3 +731,116 @@ def handle_training_center(id):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
+
+@app.route('/cities', methods=['GET'])
+def get_cities():
+    search_query = request.args.get("search", "", type=str)
+
+    query = Cities.query
+
+    if search_query:
+        query = query.filter(
+            (Cities.title.ilike(f"%{search_query}%"))
+        )
+        
+    cities = query.all()
+
+
+    result = [{'id': city.id, 'title': city.title} for city in cities]
+    return jsonify(result), 200
+
+@app.route('/city', methods=['POST'])
+def add_city():
+    data = request.get_json()  
+    title = data.get('title')
+    
+    if not title:
+        return jsonify({'error': 'Title is required'}), 400
+    
+    new_city = Cities(title=title)
+    
+    try:
+        db.session.add(new_city)
+        db.session.commit()
+        return jsonify({'message': 'City created successfully', 'city': {'id': new_city.id, 'title': new_city.title}}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+import csv
+import os
+CSV_FILE_PATH = 'applyforms_data.csv'
+
+def initialize_csv():
+    if not os.path.exists(CSV_FILE_PATH):
+        with open(CSV_FILE_PATH, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['id', 'name', 'phonenumber', 'age', 'gender', 'yearsofexperience', 'Location'])
+
+def append_to_csv(applyform):
+    initialize_csv()
+
+    with open(CSV_FILE_PATH, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        city = applyform.city  
+
+        writer.writerow([
+            applyform.id,
+            applyform.name,
+            applyform.phonenumber,
+            applyform.age,
+            applyform.gender,
+            applyform.yearsofexperience,
+            city.title
+        ])
+
+@app.route('/applyform', methods=['GET', 'POST'])
+def handle_applyforms():
+    if request.method == 'GET':
+        applyform_lst = Applyform.query.all()
+        applyforms = []
+
+        for form in applyform_lst:
+            city = form.city 
+            applyforms.append({
+                'id': form.id,
+                'name': form.name,
+                'phonenumber': form.phonenumber,
+                'age': form.age,
+                'gender': form.gender,
+                'yearsofexperience': form.yearsofexperience,
+                'city': {'id': city.id, 'title': city.title} if city else None
+            })
+
+        return jsonify({'applyforms': applyforms})
+
+    elif request.method == 'POST':
+        data = request.get_json()
+
+        new_applyform = Applyform(
+            name=data['name'],
+            phonenumber=data['phonenumber'],
+            age=data['age'],
+            gender=data['gender'],
+            yearsofexperience=data['yearsofexperience'],
+            location_id=data['location_id']
+        )
+
+        db.session.add(new_applyform)
+        db.session.commit()
+        
+        append_to_csv(new_applyform)
+
+
+        return jsonify({
+            'message': 'Applyform created successfully',
+            'applyform': {
+                'id': new_applyform.id,
+                'name': new_applyform.name,
+                'phonenumber': new_applyform.phonenumber,
+                'age': new_applyform.age,
+                'gender': new_applyform.gender,
+                'yearsofexperience': new_applyform.yearsofexperience,
+                'location_id': new_applyform.location_id,
+            }
+        }), 201

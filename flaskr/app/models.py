@@ -140,3 +140,20 @@ class TrainingCenters(db.Model):
     img = db.Column(db.String(100))
     address = db.Column(db.String(100))
     courses = db.relationship('Course', secondary=training_centers_courses, backref=db.backref('training_centers_list', lazy=True))
+
+class Applyform(db.Model):
+    __tablename__ = 'applyform'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    phonenumber = db.Column(db.String(50))
+    age = db.Column(db.String(50))
+    gender = db.Column(db.String(50))  
+    yearsofexperience = db.Column(db.String(50))
+    location_id = db.Column(db.Integer, db.ForeignKey('cities.id', ondelete='CASCADE'))
+
+    
+class Cities(db.Model):
+    __tablename__ = 'cities'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    applyforms = db.relationship('Applyform', backref='city', lazy=True, cascade="all, delete-orphan")
