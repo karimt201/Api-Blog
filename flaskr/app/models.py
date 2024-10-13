@@ -122,6 +122,7 @@ class Events(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     icon = db.Column(db.String(100))
+    img = db.Column(db.String(100))
     subtitle = db.Column(db.String(100))
     date = db.Column(db.String(100))
     starting_time = db.Column(db.String(100))
@@ -144,6 +145,7 @@ class Agenda(db.Model):
     __tablename__ = 'agenda'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
+    location = db.Column(db.String(100))
     agenda_type = db.Column(db.String(100))
     status = db.Column(db.String(100))
     starting_date = db.Column(db.String(100))

@@ -81,6 +81,7 @@ def handle_course(course_id):
     course = Course.query.get_or_404(course_id)
 
     if request.method == 'GET':
+        user = User.query.get(course.user_id)
         course_data = {
             'id': course.id,
             'title': course.title,
@@ -95,7 +96,7 @@ def handle_course(course_id):
             'end_date': course.end_date,
             'description': course.description,
             'icon': course.icon,
-            'user_id': course.user_id,
+            'username': user.username,
             'lessons': [{'id': lesson.id, 'title': lesson.title, 'slug': lesson.slug} for lesson in course.lessons]
         }
         return jsonify({'course': course_data})

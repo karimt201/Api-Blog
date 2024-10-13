@@ -7,21 +7,41 @@ event_blueprint = Blueprint('events',__name__)
 @event_blueprint.route('/events' , methods = ['GET','POST'])
 def get_events():
     if request.method == 'GET':
-        event_list = Events.query.all()
-        events = []
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per-page", 2, type=int)
         
-        for event in event_list:
-            events.append({
+        search_query = request.args.get("search", "", type=str)
+
+        query = Events.query
+
+        if search_query:
+            query = query.filter(Events.title.ilike(f"%{search_query}%"))
+        
+        events_paginate = query.paginate(page=page, per_page=per_page, error_out=False)        
+        
+        events_data = []
+        
+        for event in events_paginate:
+            events_data.append({
                 'id' : event.id,
                 'title' : event.title,
                 'icon' : event.icon,
+                'img' : event.img,
                 'subtitle' : event.subtitle,
                 'date' : event.date,
                 'starting_time' : event.starting_time,
                 'description' : event.description,
                 'user_id' : event.user_id,
                 })
-        return jsonify({'events' : events})
+            
+        pagination = {
+            "count": events_paginate.total,
+            "page": page,
+            "per_page": per_page,
+            "pages": events_paginate.pages,
+        }
+        
+        return jsonify({'events' : events_data , 'pagination': pagination})
     
     elif request.method == 'POST':
         data = request.get_json()
@@ -29,6 +49,7 @@ def get_events():
         new_event = Events(
             title = data['title'], 
             icon = data['icon'], 
+            img = data['img'], 
             subtitle = data['subtitle'], 
             date = data['date'], 
             starting_time = data['starting_time'], 
@@ -52,6 +73,7 @@ def handle_event(event_id):
                 'id' : event.id,
                 'title' : event.title,
                 'icon' : event.icon,
+                'img' : event.img,
                 'subtitle' : event.subtitle,
                 'date' : event.date,
                 'starting_time' : event.starting_time,
@@ -59,6 +81,7 @@ def handle_event(event_id):
                 'user_id' : event.user_id,
                 'agenda' : [{
                     'title' : agenda.title,
+                    'location' : agenda.location,
                     'agenda_type' : agenda.agenda_type,
                     'status' : agenda.status,
                     'starting_date' : agenda.starting_date,
@@ -78,6 +101,7 @@ def handle_event(event_id):
         data = request.get_json()
         event.title = data.get('title', event.title)
         event.icon = data.get('icon', event.icon)
+        event.img = data.get('img', event.img)
         event.subtitle = data.get('subtitle', event.subtitle)
         event.date = data.get('date', event.date)
         event.starting_time = data.get('starting_time', event.starting_time)
@@ -138,6 +162,7 @@ def get_post_agenda():
             agendas.append({
                 'id' : agenda.id,
                 'title' : agenda.title,
+                'location' : agenda.location,
                 'agenda_type' : agenda.agenda_type,
                 'status' : agenda.status,
                 'starting_date' : agenda.starting_date,
@@ -152,6 +177,7 @@ def get_post_agenda():
         
         new_agenda = Agenda(
             title = data['title'],
+            location = data['location'],
             agenda_type = data['agenda_type'],
             status = data['status'],
             starting_date = data['starting_date'],
