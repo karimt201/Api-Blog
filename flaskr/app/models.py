@@ -108,7 +108,8 @@ class Apply_form(db.Model):
     phone_number = db.Column(db.String(50), nullable=False)
     job = db.Column(db.String(50), nullable=False)
     gender = db.Column(db.String(50))  
-    years_of_experience = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50))  
+    employment_states = db.Column(db.String(255))
     location_id = db.Column(db.Integer, db.ForeignKey('cities.id', ondelete='CASCADE'), nullable=False)
 
 class Cities(db.Model):
@@ -139,6 +140,7 @@ class Speakers(db.Model):
     Position = db.Column(db.String(100))
     company_name = db.Column(db.String(100))
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
+    agenda = db.relationship('Agenda', backref='speakers', lazy=True , cascade='all, delete-orphan')
 
 
 class Agenda(db.Model):
@@ -152,3 +154,4 @@ class Agenda(db.Model):
     end_date = db.Column(db.String(100))
     keywords = db.Column(ARRAY(db.String(255)), default=[])
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
+    speaker_id = db.Column(db.Integer, db.ForeignKey('speakers.id'))

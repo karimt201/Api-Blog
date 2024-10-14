@@ -176,7 +176,7 @@ def initialize_csv():
     if not os.path.exists(CSV_FILE_PATH):
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['id', 'name', 'phone_number', 'job', 'gender', 'years_of_experience', 'Location'])
+            writer.writerow(['id', 'name', 'phone number', 'job', 'gender', 'email', 'employment states', 'Location'])
 
 def append_to_csv(apply_form):
     initialize_csv()
@@ -191,11 +191,12 @@ def append_to_csv(apply_form):
             apply_form.phone_number,
             apply_form.job,
             apply_form.gender,
-            apply_form.years_of_experience,
+            apply_form.email,
+            apply_form.employment_states,
             city.title
         ])
 
-@training_centers_blueprint.route('/apply_form', methods=['GET', 'POST'])
+@training_centers_blueprint.route('/apply-form', methods=['GET', 'POST'])
 def handle_apply_forms():
     if request.method == 'GET':
         apply_form_lst = Apply_form.query.all()
@@ -209,7 +210,8 @@ def handle_apply_forms():
                 'phone_number': form.phone_number,
                 'job': form.job,
                 'gender': form.gender,
-                'years_of_experience': form.years_of_experience,
+                'email': form.email,
+                'employment_states': form.employment_states,
                 'city': {'id': city.id, 'title': city.title} if city else None
             })
 
@@ -223,7 +225,8 @@ def handle_apply_forms():
             phone_number=data['phone_number'],
             job=data['job'],
             gender=data['gender'],
-            years_of_experience=data['years_of_experience'],
+            email=data['email'],
+            employment_states=data['employment_states'],
             location_id=data['location_id']
         )
 
@@ -241,7 +244,8 @@ def handle_apply_forms():
                 'phone_number': new_apply_form.phone_number,
                 'job': new_apply_form.job,
                 'gender': new_apply_form.gender,
-                'years_of_experience': new_apply_form.years_of_experience,
+                'email': new_apply_form.email,
+                'employment_states': new_apply_form.employment_states,
                 'location_id': new_apply_form.location_id,
             }
         }), 201

@@ -79,7 +79,8 @@ def handle_event(event_id):
                 'starting_time' : event.starting_time,
                 'description' : event.description,
                 'user_id' : event.user_id,
-                'agenda' : [{
+                'agenda' : [
+                    {
                     'title' : agenda.title,
                     'location' : agenda.location,
                     'agenda_type' : agenda.agenda_type,
@@ -87,6 +88,10 @@ def handle_event(event_id):
                     'starting_date' : agenda.starting_date,
                     'end_date' : agenda.end_date,
                     'keywords' : agenda.keywords,
+                    'speaker': {
+                        'name': speaker.name,
+                        'img': speaker.img
+                    } if (speaker := Speakers.query.get(agenda.speaker_id)) else None
                     }for agenda in event.agenda],
                 'speakers' : [{
                     'name' : speaker.name,
@@ -150,7 +155,6 @@ def get_post_speakers():
         return jsonify({'message' : 'speaker created successfully'}),201
     
 
-
 @event_blueprint.route('/agenda' , methods =['GET','POST'])
 def get_post_agenda():
     if request.method == 'GET':
@@ -159,6 +163,9 @@ def get_post_agenda():
         agendas = []
         
         for agenda in agenda_list :
+            speaker = Speakers.query.get(agenda.speaker_id)
+            speaker_name = speaker.name if speaker else 'No Speaker Assigned'
+            speaker_img = speaker.img if speaker else 'No Speaker Assigned'
             agendas.append({
                 'id' : agenda.id,
                 'title' : agenda.title,
@@ -169,6 +176,8 @@ def get_post_agenda():
                 'end_date' : agenda.end_date,
                 'keywords' : agenda.keywords,
                 'event_id' : agenda.event_id,
+                'speaker_name' : speaker_name,
+                'speaker_img' : speaker_img
             })
         return jsonify({'agendas' : agendas})
     
@@ -183,7 +192,8 @@ def get_post_agenda():
             starting_date = data['starting_date'],
             end_date = data['end_date'],
             keywords = data['keywords'],
-            event_id = data['event_id']
+            event_id = data['event_id'],
+            speaker_id = data['speaker_id']
         )
         
         db.session.add(new_agenda)
