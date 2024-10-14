@@ -109,7 +109,7 @@ class Apply_form(db.Model):
     job = db.Column(db.String(50), nullable=False)
     gender = db.Column(db.String(50))  
     email = db.Column(db.String(50))  
-    employment_states = db.Column(db.String(255))
+    employment_status = db.Column(db.String(255))
     location_id = db.Column(db.Integer, db.ForeignKey('cities.id', ondelete='CASCADE'), nullable=False)
 
 class Cities(db.Model):

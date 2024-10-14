@@ -176,7 +176,7 @@ def initialize_csv():
     if not os.path.exists(CSV_FILE_PATH):
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['id', 'name', 'phone number', 'job', 'gender', 'email', 'employment states', 'Location'])
+            writer.writerow(['id', 'name', 'phone number', 'job', 'gender', 'email', 'employment status', 'Location'])
 
 def append_to_csv(apply_form):
     initialize_csv()
@@ -192,7 +192,7 @@ def append_to_csv(apply_form):
             apply_form.job,
             apply_form.gender,
             apply_form.email,
-            apply_form.employment_states,
+            apply_form.employment_status,
             city.title
         ])
 
@@ -211,7 +211,7 @@ def handle_apply_forms():
                 'job': form.job,
                 'gender': form.gender,
                 'email': form.email,
-                'employment_states': form.employment_states,
+                'employment_status': form.employment_status,
                 'city': {'id': city.id, 'title': city.title} if city else None
             })
 
@@ -226,7 +226,7 @@ def handle_apply_forms():
             job=data['job'],
             gender=data['gender'],
             email=data['email'],
-            employment_states=data['employment_states'],
+            employment_status=data['employment_status'],
             location_id=data['location_id']
         )
 
@@ -245,7 +245,7 @@ def handle_apply_forms():
                 'job': new_apply_form.job,
                 'gender': new_apply_form.gender,
                 'email': new_apply_form.email,
-                'employment_states': new_apply_form.employment_states,
+                'employment_status': new_apply_form.employment_status,
                 'location_id': new_apply_form.location_id,
             }
         }), 201
