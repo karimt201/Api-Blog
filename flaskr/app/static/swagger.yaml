@@ -1,739 +1,782 @@
-swagger: "2.0"
+openapi: 3.0.3
 info:
-  description: "API documentation for the Homepage and Blogs routes."
-  version: "1.0.0"
-  title: "Blog API"
+  title: Talentino Blog
+  version: 1.0.11
+
 paths:
-  /home:
-    get:
+  /blog:
+    post:
       tags:
-        - "Home"
-      summary: "Get a paginated list of blogs"
-      parameters:
-        - name: "page"
-          in: "query"
-          description: "Page number"
-          required: false
-          type: "integer"
-          default: 1
-        - name: "per-page"
-          in: "query"
-          description: "Number of items per page"
-          required: false
-          type: "integer"
-          default: 2
+        - blogs
+      summary: Add a new blog to the store
+      description: Add a new blog to the store
+      operationId: addPet
+      requestBody:
+        description: Create a new blog in the store
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/blogs"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/blogs"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/blogs"
+        required: true
       responses:
-        200:
-          description: "A list of blogs and pagination info"
-          schema:
-            type: "object"
-            properties:
-              blogs:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id:
-                      type: "integer"
-                    img:
-                      type: "string"
-                    title:
-                      type: "string"
-                    description:
-                      type: "string"
-                    keywords:
-                      type: "array"
-                      items:
-                        type: "string"
-                    user_id:
-                      type: "integer"
-              pagination:
-                type: "object"
-                properties:
-                  count:
-                    type: "integer"
-                  page:
-                    type: "integer"
-                  per_page:
-                    type: "integer"
-                  pages:
-                    type: "integer"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/blogs"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/blogs"
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
 
   /blogs:
     get:
       tags:
-        - "Blogs"
-      summary: "Get all blogs"
-      description: "Retrieve a list of all blogs along with their categories, contents, and FAQs."
-      produces:
-        - "application/json"
-      responses:
-        200:
-          description: "A list of blogs"
-          schema:
-            type: "object"
-            properties:
-              blogs:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    id:
-                      type: "integer"
-                    img:
-                      type: "string"
-                    title:
-                      type: "string"
-                    description:
-                      type: "string"
-                    date:
-                      type: "string"
-                    read_time:
-                      type: "integer"
-                    keywords:
-                      type: "array"
-                      items:
-                        type: "string"
-                    categories:
-                      type: "array"
-                      items:
-                        type: "object"
-                        properties:
-                          id:
-                            type: "integer"
-                          title:
-                            type: "string"
-                    contents:
-                      type: "array"
-                      items:
-                        type: "object"
-                        properties:
-                          id:
-                            type: "integer"
-                          title:
-                            type: "string"
-                          description:
-                            type: "string"
-                    faqs:
-                      type: "array"
-                      items:
-                        type: "object"
-                        properties:
-                          id:
-                            type: "integer"
-                          question:
-                            type: "string"
-                          answer:
-                            type: "string"
-                    user_id:
-                      type: "integer"
-    post:
-      tags:
-        - "Blogs"
-      summary: "Create a new blog"
-      description: "Create a new blog with categories, contents, and FAQs."
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
+        - blogs
+      summary: Finds blogs by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findblogssByStatus
       parameters:
-        - in: "body"
-          name: "body"
-          description: "Blog object that needs to be added"
-          required: true
+        - name: status
+          in: query
+          description: Status values that need to be considered for filter
+          required: false
+          explode: true
           schema:
-            type: "object"
-            properties:
-              img:
-                type: "string"
-              title:
-                type: "string"
-              description:
-                type: "string"
-              read_time:
-                type: "integer"
-              keywords:
-                type: "array"
-                items:
-                  type: "string"
-              user_id:
-                type: "integer"
-              category_ids:
-                type: "array"
-                items:
-                  type: "integer"
-              contents:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    title:
-                      type: "string"
-                    description:
-                      type: "string"
-              faqs:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    question:
-                      type: "string"
-                    answer:
-                      type: "string"
+            type: string
+            default: available
+            enum:
+              - available
+              - pending
+              - sold
       responses:
-        201:
-          description: "Blog created successfully"
-          schema:
-            type: "object"
-            properties:
-              message:
-                type: "string"
-              blog_id:
-                type: "integer"
-        500:
-          description: "Internal server error"
-          schema:
-            type: "object"
-            properties:
-              error:
-                type: "string"
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/blogs"
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/blogs"
+        "400":
+          description: Invalid status value
 
-  /blogs/{blog_id}:
+  /home:
     get:
       tags:
-        - "Blogs"
-      summary: "Get a specific blog by ID"
-      description: "Retrieve detailed information about a specific blog entry."
-      produces:
-        - "application/json"
+        - blogs
+      summary: Finds blogs by tags
+      description: Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+      operationId: findblogsByTags
       parameters:
-        - name: "blog_id"
-          in: "path"
-          description: "ID of the blog to retrieve"
-          required: true
-          type: "integer"
+        - name: tags
+          in: query
+          description: Tags to filter by
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
       responses:
-        200:
-          description: "A blog entry"
-          schema:
-            type: "object"
-            properties:
-              blog:
-                type: "object"
-                properties:
-                  id:
-                    type: "integer"
-                  img:
-                    type: "string"
-                  title:
-                    type: "string"
-                  date:
-                    type: "string"
-                    format: "date"
-                  read_time:
-                    type: "integer"
-                  description:
-                    type: "string"
-                  keywords:
-                    type: "array"
-                    items:
-                      type: "string"
-                  categories:
-                    type: "array"
-                    items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "integer"
-                        title:
-                          type: "string"
-                        description:
-                          type: "string"
-                  contents:
-                    type: "array"
-                    items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "integer"
-                        title:
-                          type: "string"
-                        description:
-                          type: "string"
-                  faqs:
-                    type: "array"
-                    items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "integer"
-                        question:
-                          type: "string"
-                        answer:
-                          type: "string"
-                  user_id:
-                    type: "integer"
-
-    put:
-      tags:
-        - "Blogs"
-      summary: "Update a specific blog by ID"
-      description: "Update an existing blog entry."
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "blog_id"
-          in: "path"
-          description: "ID of the blog to update"
-          required: true
-          type: "integer"
-        - in: "body"
-          name: "body"
-          description: "Blog object that needs to be updated"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              img:
-                type: "string"
-              title:
-                type: "string"
-              description:
-                type: "string"
-              read_time:
-                type: "integer"
-              keywords:
-                type: "array"
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
                 items:
-                  type: "string"
-              category_ids:
-                type: "array"
+                  $ref: "#/components/schemas/blogs"
+            application/xml:
+              schema:
+                type: array
                 items:
-                  type: "integer"
-      responses:
-        200:
-          description: "Blog updated successfully"
-          schema:
-            type: "object"
-            properties:
-              message:
-                type: "string"
+                  $ref: "#/components/schemas/blogs"
+        "400":
+          description: Invalid tag value
 
-    delete:
+  /blogs/{blogId}:
+    get:
       tags:
-        - "Blogs"
-      summary: "Delete a specific blog by ID"
-      description: "Remove a blog entry from the system."
+        - blogs
+      summary: Find blog by ID
+      description: Returns a single blog
+      operationId: getblogsById
       parameters:
-        - name: "blog_id"
-          in: "path"
-          description: "ID of the blog to delete"
+        - name: blogId
+          in: path
+          description: ID of blog to return
           required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Blog deleted successfully"
           schema:
-            type: "object"
-            properties:
-              message:
-                type: "string"
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/blogs"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/blogs"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: blog not found
+
   /courses:
     get:
       tags:
-        - Courses
-      summary: "Get a paginated list of courses"
-      description: "Retrieve a paginated list of courses along with basic information for each course, including nested lesson summaries."
+        - courses
+      summary: Get a paginated list of courses
+      description: Retrieve a list of courses with pagination
+      operationId: getCourses
       parameters:
         - name: page
-          in: "query"
-          description: "Page number (default: 1)"
+          in: query
+          description: Page number of the result set
           required: false
-          type: "integer"
+          schema:
+            type: integer
+            default: 1
         - name: per-page
-          in: "query"
-          description: "Number of courses per page (default: 2)"
+          in: query
+          description: Number of results per page
           required: false
-          type: "integer"
+          schema:
+            type: integer
+            default: 2
       responses:
-        200:
-          description: "A list of courses with pagination information"
+        "200":
+          description: A list of paginated courses
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   courses:
-                    type: "array"
+                    type: array
                     items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "integer"
-                        title:
-                          type: "string"
-                        description:
-                          type: "string"
-                        icon:
-                          type: "string"  # Assuming icon URL or path
-                        user_id:
-                          type: "integer"
-                        lessons:
-                          type: "array"
-                          items:
-                            type: "object"
-                            properties:
-                              id:
-                                type: "integer"
-                              title:
-                                type: "string"
-                              slug:
-                                type: "string"
+                      $ref: "#/components/schemas/Course"
                   pagination:
-                    type: "object"
+                    type: object
                     properties:
                       count:
-                        type: "integer"
+                        type: integer
                       page:
-                        type: "integer"
+                        type: integer
                       per_page:
-                        type: "integer"
+                        type: integer
                       pages:
-                        type: "integer"
+                        type: integer
+        "400":
+          description: Invalid input
+
+  /course:
     post:
       tags:
-        - Courses
-      summary: "Create a new course"
-      description: "Create a new course with the provided title, description, icon URL (optional), and user ID."
+        - courses
+      summary: Create a new course
+      description: Add a new course to the database
+      operationId: createCourse
       requestBody:
+        description: Course object to be created
         required: true
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                  required: true
-                description:
-                  type: "string"
-                  required: true
-                icon:
-                  type: "string"
-                user_id:
-                  type: "integer"
-                  required: true
+              $ref: "#/components/schemas/Course"
       responses:
-        201:
-          description: "Course created successfully"
+        "201":
+          description: Course created successfully
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   message:
-                    type: "string"
+                    type: string
+                    example: Course created successfully
                   course_id:
-                    type: "integer"
-        500:
-          description: "Internal server error"
+                    type: integer
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   error:
-                    type: "string"
-/courses/{course_id}:
-    put:
-      tags:
-        - Courses
-      summary: "Update a course"
-      description: "Update the details of an existing course."
-      parameters:
-        - name: course_id
-          in: "path"
-          required: true
-          type: "integer"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                description:
-                  type: "string"
-                icon:
-                  type: "string"
-      responses:
-        200:
-          description: "Course updated successfully"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-        400:
-          description: "Invalid request data"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-        500:
-          description: "Internal server error"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-    delete:
-      tags:
-        - Courses
-      summary: "Delete a course"
-      description: "Delete an existing course and its associated lessons."
-      parameters:
-        - name: course_id
-          in: "path"
-          required: true
-          type: "integer"
-      responses:
-        200:
-          description: "Course deleted successfully"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-        500:
-          description: "Internal server error"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
+                    type: string
 
-/courses/{course_id}/lessons:
+  /lessons:
     get:
       tags:
-        - Lessons
-      summary: "Get lessons for a specific course"
-      description: "Retrieve a list of lessons associated with a particular course."
+        - lessons
+      summary: Get a paginated list of lessons
+      description: Retrieve a list of lessons with pagination
+      operationId: getLessons
       parameters:
-        - name: course_id
-          in: "path"
-          required: true
-          type: "integer"
+        - name: page
+          in: query
+          description: Page number of the result set
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per-page
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 4
       responses:
-        200:
-          description: "A list of lessons"
+        "200":
+          description: A list of paginated lessons
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   lessons:
-                    type: "array"
+                    type: array
                     items:
-                      type: "object"
-                      properties:
-                        id:
-                          type: "integer"
-                        title:
-                          type: "string"
-                        slug:
-                          type: "string"
-                        content:
-                          type: "string"
-                        thumbnail:
-                          type: "string"
+                      $ref: "#/components/schemas/Lesson"
+                  pagination:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      page:
+                        type: integer
+                      per_page:
+                        type: integer
+                      pages:
+                        type: integer
+        "400":
+          description: Invalid input
+
+  /lesson:
     post:
       tags:
-        - Lessons
-      summary: "Create a new lesson for a course"
-      description: "Add a new lesson to an existing course."
-      parameters:
-        - name: course_id
-          in: "path"
-          required: true
-          type: "integer"
+        - lessons
+      summary: Create a new lesson
+      description: Add a new lesson to the database
+      operationId: createLesson
       requestBody:
+        description: Lesson object to be created
         required: true
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                  required: true
-                slug:
-                  type: "string"
-                  required: true
-                content:
-                  type: "string"
-                  required: true
-                thumbnail:
-                  type: "string"
+              $ref: "#/components/schemas/Lesson"
       responses:
-        201:
-          description: "Lesson created successfully"
+        "201":
+          description: Lesson created successfully
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   message:
-                    type: "string"
+                    type: string
+                    example: Lesson created successfully
                   lesson_id:
-                    type: "integer"
-        400:
-          description: "Invalid request data"
+                    type: integer
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   error:
-                    type: "string"
-        500:
-          description: "Internal server error"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
+                    type: string
 
-/lessons/{lesson_id}:
+  /events:
     get:
       tags:
-        - Lessons
-      summary: "Get a specific lesson by ID"
-      description: "Retrieve details for a single lesson by its unique ID."
+        - events
+      summary: Get a paginated list of events
+      operationId: getEvents
       parameters:
-        - name: lesson_id
-          in: "path"
-          required: true
-          type: "integer"
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per-page
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            default: 2
+        - name: search
+          in: query
+          description: Search query for event titles
+          required: false
+          schema:
+            type: string
       responses:
-        200:
-          description: "Lesson details"
+        "200":
+          description: List of events with pagination
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
-                  lesson:
-                    type: "object"
+                  events:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+                  pagination:
+                    type: object
                     properties:
-                      id:
-                        type: "integer"
-                      title:
-                        type: "string"
-                      slug:
-                        type: "string"
-                      content:
-                        type: "string"
-                      thumbnail:
-                        type: "string"
-                      course_id:
-                        type: "integer"
-    put:
+                      count:
+                        type: integer
+                      page:
+                        type: integer
+                      per_page:
+                        type: integer
+                      pages:
+                        type: integer
+        "400":
+          description: Invalid request
+
+    post:
       tags:
-        - Lessons
-      summary: "Update a lesson"
-      description: "Update the details of an existing lesson."
-      parameters:
-        - name: lesson_id
-          in: "path"
-          required: true
-          type: "integer"
+        - events
+      summary: Create a new event
+      operationId: createEvent
       requestBody:
+        description: Event object to be created
         required: true
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                title:
-                  type: "string"
-                slug:
-                  type: "string"
-                content:
-                  type: "string"
-                thumbnail:
-                  type: "string"
+              $ref: "#/components/schemas/Event"
       responses:
-        200:
-          description: "Lesson updated successfully"
+        "201":
+          description: Event created successfully
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   message:
-                    type: "string"
-        400:
-          description: "Invalid request data"
+                    type: string
+                    example: Event created successfully
+                  event_id:
+                    type: integer
+        "500":
+          description: Internal server error
+
+  /events/{event_id}:
+    get:
+      tags:
+        - events
+      summary: Get event by ID
+      description: Retrieve detailed information about a specific event by its ID.
+      operationId: getEventById
+      parameters:
+        - name: event_id
+          in: path
+          description: ID of the event to retrieve
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detailed event information
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
-                  error:
-                    type: "string"
-        500:
-          description: "Internal server error"
+                  event:
+                    $ref: "#/components/schemas/EventDetails"
+        "404":
+          description: Event not found
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
-                  error:
-                    type: "string"
+                  message:
+                    type: string
+                    example: Event not found
+
+    put:
+      tags:
+        - events
+      summary: Update an existing event by ID
+      description: Update the details of a specific event by providing its ID.
+      operationId: updateEvent
+      parameters:
+        - name: event_id
+          in: path
+          description: ID of the event to update
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Event object with updated data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Event"
+      responses:
+        "200":
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Event updated successfully
+        "404":
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Event not found
+
     delete:
       tags:
-        - Lessons
-      summary: "Delete a lesson"
-      description: "Delete an existing lesson."
+        - events
+      summary: Delete an event by ID
+      description: Delete a specific event by its ID.
+      operationId: deleteEvent
       parameters:
-        - name: lesson_id
-          in: "path"
+        - name: event_id
+          in: path
+          description: ID of the event to delete
           required: true
-          type: "integer"
+          schema:
+            type: integer
       responses:
-        200:
-          description: "Lesson deleted successfully"
+        "200":
+          description: Event deleted successfully
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   message:
-                    type: "string"
-        500:
-          description: "Internal server error"
+                    type: string
+                    example: Event deleted successfully
+        "404":
+          description: Event not found
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
-                  error:
-                    type: "string"
+                  message:
+                    type: string
+                    example: Event not found
+
+  /speakers:
+    get:
+      tags:
+        - speakers
+      summary: Get a list of speakers
+      operationId: getSpeakers
+      responses:
+        "200":
+          description: List of speakers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Speaker"
+
+    post:
+      tags:
+        - speakers
+      summary: Create a new speaker
+      operationId: createSpeaker
+      requestBody:
+        description: Speaker object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Speaker"
+      responses:
+        "201":
+          description: Speaker created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Speaker created successfully
+                  speaker_id:
+                    type: integer
+        "500":
+          description: Internal server error
+
+  /agenda:
+    get:
+      tags:
+        - agenda
+      summary: Get a list of agenda items
+      operationId: getAgenda
+      responses:
+        "200":
+          description: List of agenda items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Agenda"
+
+    post:
+      tags:
+        - agenda
+      summary: Create a new agenda item
+      operationId: createAgenda
+      requestBody:
+        description: Agenda object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Agenda"
+      responses:
+        "201":
+          description: Agenda created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Agenda created successfully
+                  agenda_id:
+                    type: integer
+        "500":
+          description: Internal server error
+
+components:
+  schemas:
+    blogs:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        img:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        read_time:
+          type: string
+        date:
+          type: string
+        user_id:
+          type: integer
+        keywords:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: photoUrl
+      xml:
+        name: blogs
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        user_id:
+          type: integer
+          example: 1
+        lessons:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              title:
+                type: string
+              slug:
+                type: string
+      xml:
+        name: Course
+
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Introduction to Python"
+        slug:
+          type: string
+        date:
+          type: string
+          format: date-time
+          example: "2024-09-25T12:34:56Z"
+        content:
+          type: string
+          example: "This is the content of the lesson."
+        thumbnail:
+          type: string
+          example: "lesson_thumbnail.png"
+        course_title:
+          type: string
+          example: "Programming Basics"
+        user_img:
+          type: string
+          example: "user_profile.png"
+        username:
+          type: string
+          example: "JohnDoe"
+      xml:
+        name: Lesson
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        icon:
+          type: string
+        img:
+          type: string
+        subtitle:
+          type: string
+        date:
+          type: string
+        starting_time:
+          type: string
+        description:
+          type: string
+        user_id:
+          type: integer
+
+    Speaker:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        img:
+          type: string
+        position:
+          type: string
+        company_name:
+          type: string
+        event_id:
+          type: integer
+
+    Agenda:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        location:
+          type: string
+        agenda_type:
+          type: string
+        status:
+          type: string
+        starting_date:
+          type: string
+        end_date:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        event_id:
+          type: integer
+        speaker_id:
+          type: integer
+
+  requestBodies:
+    Pet:
+      description: Pet object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/blogs"
+        application/xml:
+          schema:
+            $ref: "#/components/schemas/blogs"
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/blogs"
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

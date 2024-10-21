@@ -5,12 +5,12 @@ import reportWebVitals from "./reportWebVitals";
 import { CreatePost } from "./components/createpost";
 import App from "./components/test";
 import CategoryForm from "./components/CategoryForm"
-import BlogForm from "./components/BlogForm"
+import ApplyForm from "./components/ApplyForm"
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BlogForm />
+    <ApplyForm />
   </React.StrictMode>
 );
 

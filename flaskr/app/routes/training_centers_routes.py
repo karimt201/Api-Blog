@@ -116,7 +116,6 @@ def get_cities():
         
     cities = query.all()
 
-
     result = [{'id': city.id, 'title': city.title} for city in cities]
     return jsonify(result), 200
 
